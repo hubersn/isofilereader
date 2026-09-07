@@ -1,6 +1,16 @@
-<p align="right">
-<a href="https://autorelease.general.dmz.palantir.tech/palantir/isofilereader"><img src="https://img.shields.io/badge/Perform%20an-Autorelease-success.svg" alt="Autorelease"></a>
-</p>
+# About this fork
+
+This is an experimental fork for a forthcoming project of mine. Changes and additions:
+* main code is now Java 8 compatible
+* pom.xml for using Maven 3 for building
+* access to inner raw data to enable additional parsing for directory record data
+** this is to parse Acorn CDFS extensions (the one with the ARCHIMEDES descriptions) for RISC OS load/exec address or datestamp/filetype as well as access right attributes and the marker if the first character should really be the "!" instead of the "_" of the entry name
+
+I will try to add basic Joliet capabilities - as far as CDROMFS/RISC OS Select CDFS/CDRFS and CDBurn/CDVDBurn/CDBlaze compatibility requires it - soon.
+
+Test code not changed yet to be Java 8 compatible, so you need to skip tests when building your Java 8 lib jar. Use the original Gradle build mechanism to run the tests.
+
+All my changes and additions to this project are in the "hubersn" branch and licensed under Apache-2.0 (for compatibility with the parent project), The Unlicence (to maximize your freedom) or in the Public Domain (if this is possible in your area of jurisdiction), whichever you choose. All changes are done without AI.
 
 # IsoFileReader 💿
 

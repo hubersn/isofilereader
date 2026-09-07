@@ -32,6 +32,8 @@ import java.util.Optional;
  */
 @SuppressWarnings("StrictUnusedVariable")
 public class IsoFormatDirectoryRecord {
+    // original full record
+    private byte[] record;
     // 0 - Length of directory record
     private final byte lenDirRecord;
     // 1 - Ext Attrib Record Length
@@ -67,6 +69,7 @@ public class IsoFormatDirectoryRecord {
      * @param parent  String of the parent for full filename tracking
      */
     public IsoFormatDirectoryRecord(byte[] record, String parent) {
+        this.record = record;
         this.parent = parent;
 
         // 0 - Length of directory record
@@ -103,6 +106,22 @@ public class IsoFormatDirectoryRecord {
                         Arrays.copyOfRange(record, 33 + Byte.toUnsignedInt(lenOfFileIdentifier), record.length));
             }
         }
+    }
+
+    public int getRecordOffset() {
+      if (this.record.length > (34 + Byte.toUnsignedInt(lenOfFileIdentifier))) {
+        if (getLenOfFileIdentifierAsInt() % 2 == 0) {
+          // Optional padding bit
+          return 34 + Byte.toUnsignedInt(lenOfFileIdentifier);
+        } else {
+          return 33 + Byte.toUnsignedInt(lenOfFileIdentifier);
+        }
+      }
+      return -1;
+    }
+
+    public byte[] getRecord() {
+      return this.record;
     }
 
     private Map<String, RockRidgeAttribute> readAttributes(byte[] systemUseArea) {

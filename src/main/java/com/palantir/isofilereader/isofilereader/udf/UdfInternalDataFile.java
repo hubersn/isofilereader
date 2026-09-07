@@ -79,7 +79,7 @@ public class UdfInternalDataFile extends GenericInternalIsoFile {
     public void addChildren(GenericInternalIsoFile[] passedChildren) {
         UdfInternalDataFile[] convertedType = (UdfInternalDataFile[]) passedChildren;
         Arrays.stream(convertedType).forEach(each -> each.setParent(this));
-        this.children.addAll(List.of(convertedType));
+        this.children.addAll(Arrays.asList(convertedType));
     }
 
     /**

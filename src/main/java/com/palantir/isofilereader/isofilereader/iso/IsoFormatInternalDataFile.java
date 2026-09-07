@@ -82,7 +82,7 @@ public class IsoFormatInternalDataFile extends GenericInternalIsoFile {
     public final void addChildren(GenericInternalIsoFile[] passedChildren) {
         IsoFormatInternalDataFile[] convertedType = (IsoFormatInternalDataFile[]) passedChildren;
         Arrays.stream(convertedType).forEach(each -> each.setParent(this));
-        this.children.addAll(List.of(convertedType));
+        this.children.addAll(Arrays.asList(convertedType));
     }
 
     /**

@@ -114,7 +114,7 @@ public class TraditionalIsoReader {
             IsoFormatDirectoryReader reader = new IsoFormatDirectoryReader(headerInfo, parent);
             recordsRead = reader.getRecordsAsIsoInternalDataFile(isUseRockRidgeOverStandard());
             for (IsoFormatInternalDataFile singleRecord : recordsRead) {
-                if (singleRecord.getUnderlyingRecord().isEmpty()) {
+                if (!singleRecord.getUnderlyingRecord().isPresent()) {
                     throw new IOException("Underlying ISO header record not found where one should be.");
                 }
                 if (singleRecord.isDirectory()

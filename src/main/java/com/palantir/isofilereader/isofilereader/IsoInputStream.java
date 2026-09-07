@@ -192,7 +192,6 @@ public class IsoInputStream extends InputStream {
      * @return byte array of data in the file
      * @throws IOException error in reading underlying media
      */
-    @Override
     public byte[] readAllBytes() throws IOException {
         int size = (int) (endLoc - file.getFilePointer());
         return readNBytes(size);
@@ -205,7 +204,6 @@ public class IsoInputStream extends InputStream {
      * @return byte array of data in area
      * @throws IOException error in reading underlying media
      */
-    @Override
     @SuppressWarnings("ReadReturnValueIgnored")
     public byte[] readNBytes(int len) throws IOException {
         if (len < 0) {
@@ -225,9 +223,8 @@ public class IsoInputStream extends InputStream {
      * @return number of bytes read
      * @throws IOException was there an error in underlying media
      */
-    @Override
     public int readNBytes(byte[] bytes, int off, int len) throws IOException {
-        Objects.checkFromIndexSize(off, len, bytes.length);
+        // Java 11? Objects.checkFromIndexSize(off, len, bytes.length);
 
         int numTracker = 0;
         while (numTracker < len) {
@@ -279,7 +276,6 @@ public class IsoInputStream extends InputStream {
      * @return length of file transferred in bytes
      * @throws IOException read IO exception can occur if there is a read error with the underlying media
      */
-    @Override
     public long transferTo(OutputStream out) throws IOException {
         Objects.requireNonNull(out, "out");
         long transferred = 0;

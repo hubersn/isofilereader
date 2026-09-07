@@ -80,3 +80,6 @@ test_isos/
 
 # Gradle JDKs setup
 !gradle/*
+
+# Maven build output
+/target/

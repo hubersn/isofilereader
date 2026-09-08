@@ -14,9 +14,9 @@ I will try to add basic Joliet capabilities - as far as CDROMFS/RISC OS Select C
 
 Test code not changed yet to be Java 8 compatible, so you need to skip tests when building your Java 8 lib jar. Use the original Gradle build mechanism to run the tests.
 
-To build the jar for your local maven repo, just execute
+To build the jar for your local maven repo (with neither compiling nor executing the tests because...see above), just execute
 ```
-mvn clean install -DskipTests
+mvn clean install -Dmaven.test.skip=true
 ```
 
 I changed the Maven coordinates to avoid collision with the original. To use, add the following to your pom.xml dependencies:

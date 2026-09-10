@@ -22,9 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatConstant;
-import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatDirectoryRecord;
-import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatPrimaryVolumeDescriptor;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -32,9 +29,16 @@ import java.io.RandomAccessFile;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.TimeZone;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import com.palantir.isofilereader.Java8Support;
+import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatConstant;
+import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatDirectoryRecord;
+import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatPrimaryVolumeDescriptor;
 
 class IsoPrimaryVolumeDescriptorTest {
     @Test
@@ -42,7 +46,7 @@ class IsoPrimaryVolumeDescriptorTest {
         byte[] headerInfo = testFileValidationAndReturnHeader();
         IsoFormatPrimaryVolumeDescriptor isoPrimaryVolumeDescriptor = new IsoFormatPrimaryVolumeDescriptor(headerInfo);
         String sysIdString = isoPrimaryVolumeDescriptor.getSystemIdentifierAsString();
-        Assertions.assertFalse(sysIdString.isBlank());
+        Assertions.assertFalse(Java8Support.String_isBlank(sysIdString));
         System.out.println("System ID: " + sysIdString);
     }
 
@@ -51,7 +55,7 @@ class IsoPrimaryVolumeDescriptorTest {
         byte[] headerInfo = testFileValidationAndReturnHeader();
         IsoFormatPrimaryVolumeDescriptor isoPrimaryVolumeDescriptor = new IsoFormatPrimaryVolumeDescriptor(headerInfo);
         String sysIdString = isoPrimaryVolumeDescriptor.getVolumeIdentifierAsString();
-        Assertions.assertFalse(sysIdString.isBlank());
+        Assertions.assertFalse(Java8Support.String_isBlank(sysIdString));
         System.out.println("Volume ID: " + sysIdString);
     }
 
@@ -186,7 +190,7 @@ class IsoPrimaryVolumeDescriptorTest {
         IsoFormatDirectoryRecord isoDirectoryRecord =
                 isoPrimaryVolumeDescriptor.getDirectoryRecordForRootDirectoryAsIsoDirectorRecord();
 
-        final DateFormat dateFormat = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss");
+        final DateFormat dateFormat = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss", Locale.ENGLISH);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         String stringDate =
                 dateFormat.format(isoDirectoryRecord.getDataAndTimeAsDate().get());
@@ -272,7 +276,7 @@ class IsoPrimaryVolumeDescriptorTest {
         byte[] headerInfo = testFileValidationAndReturnHeader();
         IsoFormatPrimaryVolumeDescriptor isoPrimaryVolumeDescriptor = new IsoFormatPrimaryVolumeDescriptor(headerInfo);
 
-        final DateFormat dateFormat = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss:SS");
+        final DateFormat dateFormat = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss:SS", Locale.ENGLISH);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         String stringDate = null;
         try {
@@ -296,7 +300,7 @@ class IsoPrimaryVolumeDescriptorTest {
             return;
         }
 
-        final DateFormat dateFormat = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss:SS");
+        final DateFormat dateFormat = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss:SS", Locale.ENGLISH);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         String stringDate = null;
         try {
@@ -320,7 +324,7 @@ class IsoPrimaryVolumeDescriptorTest {
             // Blank array, value not set
             return;
         }
-        final DateFormat dateFormat = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss:SS");
+        final DateFormat dateFormat = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss:SS", Locale.ENGLISH);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         String stringDate = null;
         try {
@@ -343,7 +347,7 @@ class IsoPrimaryVolumeDescriptorTest {
             return;
         }
 
-        final DateFormat dateFormat = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss:SS");
+        final DateFormat dateFormat = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss:SS", Locale.ENGLISH);
         String stringDate = null;
         try {
             stringDate = dateFormat.format(isoPrimaryVolumeDescriptor.getVolumeEffectiveDateTimeAsDate());

@@ -150,12 +150,12 @@ public class IsoImageTests {
             if (subFile.isFile() && subFile.getName().endsWith("md5")) {
                 String md5Info = null;
                 try {
-                    md5Info = Files.readString(subFile.toPath());
+                    md5Info = Java8Support.Files_readString(subFile.toPath());
                 } catch (IOException e) {
                     Assertions.fail("Failed to read md5 info", e);
                 }
                 Assertions.assertNotNull(md5Info);
-                Assertions.assertFalse(md5Info.isBlank());
+                Assertions.assertFalse(Java8Support.String_isBlank(md5Info));
 
                 String newFileName = subFile.getAbsolutePath().replace(".md5", ".txt");
                 File dataFile = new File(newFileName);

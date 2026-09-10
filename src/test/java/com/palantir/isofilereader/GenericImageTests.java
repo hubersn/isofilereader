@@ -96,7 +96,7 @@ public class GenericImageTests {
             System.out.println("Timezone Type: " + timezoneType);
 
             InputStream stream = iso.getFileStream(generalFile.get());
-            byte[] array = stream.readAllBytes();
+            byte[] array = Java8Support.InputStream_readAllBytes(stream);
 
             // This equals "LONG "
             byte[] comparingData = {0x4c, 0x4f, 0x4e, 0x47, 0x0a};
@@ -123,7 +123,7 @@ public class GenericImageTests {
 
             array = new byte[(int) generalFile.get().getSize()];
             stream.reset();
-            stream.readNBytes(array, 1, 3);
+            Java8Support.InputStream_readNBytes(stream, array, 1, 3);
             for (int i = 0; i < 3; i++) {
                 Assertions.assertEquals(comparingData[i], array[i + 1]);
             }
@@ -142,7 +142,7 @@ public class GenericImageTests {
                     files, "/mactest-mactest-mactest-mactest-mactest-mactest-mactest-mact.txt");
             Assertions.assertTrue(generalFile.isPresent());
             InputStream stream = iso.getFileStream(generalFile.get());
-            byte[] array = stream.readAllBytes();
+            byte[] array = Java8Support.InputStream_readAllBytes(stream);
 
             // This equals "LONG "
             byte[] comparingData = {
@@ -166,7 +166,7 @@ public class GenericImageTests {
             }
             stream.reset();
             ByteArrayOutputStream holdingBuffer = new ByteArrayOutputStream();
-            long readData = stream.transferTo(holdingBuffer);
+            long readData = Java8Support.InputStream_transferTo(stream, holdingBuffer);
             Assertions.assertEquals(readData, 5566);
             byte[] returnedData = holdingBuffer.toByteArray();
             for (int i = 0; i < comparingData.length; i++) {

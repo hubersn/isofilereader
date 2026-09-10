@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.palantir.isofilereader.isofilereader.Util;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -33,7 +32,7 @@ public class UtilTest {
         byte[] testData = {4, 3, 2, 1};
         byte[] wantedResult = {0, 0, 0, 0, 0, 1, 2, 3, 4};
         byte[] result = Util.convertFromLeastSignificantAndPad(testData, 5, (byte) 0);
-        assertEquals(0, Arrays.compare(wantedResult, result));
+        assertEquals(0, Java8Support.Arrays_compare(wantedResult, result));
     }
 
     @Test

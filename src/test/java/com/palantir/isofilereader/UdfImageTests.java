@@ -273,7 +273,7 @@ public class UdfImageTests {
             File tempo = Files.createTempFile("outputFile", ".wim").toFile();
 
             System.out.println("Output temp: " + tempo.getAbsolutePath());
-            byte[] data = bootWimFileStream.readAllBytes();
+            byte[] data = Java8Support.InputStream_readAllBytes(bootWimFileStream);
             Files.write(tempo.toPath(), data);
 
             Assertions.assertEquals(673876802, tempo.length());
@@ -298,7 +298,7 @@ public class UdfImageTests {
             File tempo = Files.createTempFile("outputFile", ".wim").toFile();
             System.out.println("Output temp: " + tempo.getAbsolutePath());
             FileOutputStream fileOutputStream = new FileOutputStream(tempo);
-            bootWimFileStream.transferTo(fileOutputStream);
+            Java8Support.InputStream_transferTo(bootWimFileStream, fileOutputStream);
             fileOutputStream.flush();
             fileOutputStream.close();
         } catch (IOException | UdfFormatException e) {

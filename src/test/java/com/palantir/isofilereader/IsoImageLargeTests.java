@@ -288,7 +288,7 @@ public class IsoImageLargeTests {
                 Optional<GenericInternalIsoFile> matchingRecord =
                         isoImage.getSpecificFileByName(directoryRecord, translateFileNameForOtherLibrary(singleFile));
                 String path = singleFile.getPath();
-                if (matchingRecord.isEmpty()) {
+                if (!matchingRecord.isPresent()) {
                     if (tryWorseTables) {
                         Assertions.fail("Could not find : " + path + " that exists in java iso tools");
                         return false;
@@ -326,7 +326,7 @@ public class IsoImageLargeTests {
 
     private String translateFileNameForOtherLibrary(Iso9660FileEntry singleFile) {
         String searchingForFileName = singleFile.getPath();
-        if (searchingForFileName.isBlank()) {
+        if (Java8Support.String_isBlank(searchingForFileName)) {
             searchingForFileName = singleFile.getName(); // java iso tools treats
             // root folder as a blank
             // name

@@ -1,6 +1,6 @@
 # About this fork
 
-This is an experimental fork of isofilereader for a forthcoming project of mine. 
+This is an experimental fork of isofilereader for a forthcoming project of mine.
 
 All my changes and additions to this project are in the "hubersn" branch and licensed under Apache-2.0 (for compatibility with the parent project), The Unlicence (to maximize your freedom) or in the Public Domain (if this is possible in your area of jurisdiction), whichever you choose. All changes are done without AI.
 

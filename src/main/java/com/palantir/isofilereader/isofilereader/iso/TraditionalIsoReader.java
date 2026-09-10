@@ -16,6 +16,7 @@
 
 package com.palantir.isofilereader.isofilereader.iso;
 
+import com.hubersn.memory.MemoryInputIF;
 import com.palantir.isofilereader.isofilereader.iso.types.AbstractVolumeDescriptor;
 import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatConstant;
 import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatDirectoryRecord;
@@ -25,19 +26,18 @@ import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatVolumePartiti
 import com.palantir.isofilereader.isofilereader.iso.types.RockRidgeAttribute;
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public class TraditionalIsoReader {
-    private final File isoFile;
+    private final MemoryInputIF isoFile;
     private char separatorChar = File.separatorChar;
     private int tableOfContentsInUse = -1;
     private boolean useRockRidgeOverStandard = true;
 
-    public TraditionalIsoReader(File isoFile) {
+    public TraditionalIsoReader(MemoryInputIF isoFile) {
         this.isoFile = isoFile;
     }
 
@@ -100,7 +100,7 @@ public class TraditionalIsoReader {
      * @throws IOException can be thrown if file can not be read
      */
     public final IsoFormatInternalDataFile[] getInternalDataFiles(
-            RandomAccessFile file, long logicalSector, long size, String parent) throws IOException {
+            MemoryInputIF file, long logicalSector, long size, String parent) throws IOException {
         byte[] headerInfo = new byte[IsoFormatConstant.BYTES_PER_SECTOR];
         List<IsoFormatInternalDataFile> gatheringFiles = new ArrayList<>();
         IsoFormatInternalDataFile[] recordsRead;
@@ -139,7 +139,7 @@ public class TraditionalIsoReader {
         if (scanLength < 2048) {
             scanLength = 2048;
         }
-        try (RandomAccessFile file = new RandomAccessFile(isoFile, "r")) {
+        try (MemoryInputIF file = this.isoFile.copy()) {
             for (int i = 0; i < (length / IsoFormatConstant.BYTES_PER_SECTOR); i++) {
                 IsoFormatDirectoryRecord[] recordsRead = getRecordsAtSector(file, logSect, parent, i);
                 if (recordsRead != null) {
@@ -209,7 +209,7 @@ public class TraditionalIsoReader {
     }
 
     private IsoFormatDirectoryRecord[] getRecordsAtSector(
-            RandomAccessFile file, long logSector, String parent, int loop) throws IOException {
+            MemoryInputIF file, long logSector, String parent, int loop) throws IOException {
         long seekLocation =
                 (IsoFormatConstant.BYTES_PER_SECTOR * logSector) + ((long) IsoFormatConstant.BYTES_PER_SECTOR * loop);
         file.seek(seekLocation);
@@ -244,7 +244,7 @@ public class TraditionalIsoReader {
         long loc = IsoFormatConstant.BYTES_PER_SECTOR * IsoFormatConstant.BUFFER_SECTORS;
         boolean foundTerminator = false;
         long mTableLoc = isoFile.length();
-        try (RandomAccessFile file = new RandomAccessFile(isoFile, "r")) {
+        try (MemoryInputIF file = this.isoFile.copy()) {
             file.seek(loc);
             while (loc < mTableLoc && !foundTerminator) {
                 loc += file.read(headerInfo, 0, 2048);

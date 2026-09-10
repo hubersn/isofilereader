@@ -16,18 +16,11 @@
 
 package com.palantir.isofilereader;
 
-import com.github.stephenc.javaisotools.loopfs.iso9660.Iso9660FileSystem;
-import com.palantir.isofilereader.isofilereader.GenericInternalIsoFile;
-import com.palantir.isofilereader.isofilereader.IsoFileReader;
-import com.palantir.isofilereader.isofilereader.IsoInputStream;
-import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatConstant;
-import com.palantir.isofilereader.isofilereader.udf.UdfFormatException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
@@ -37,8 +30,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import com.github.stephenc.javaisotools.loopfs.iso9660.Iso9660FileSystem;
+import com.hubersn.memory.FileMemoryInput;
+import com.hubersn.memory.MemoryInputIF;
+import com.palantir.isofilereader.isofilereader.GenericInternalIsoFile;
+import com.palantir.isofilereader.isofilereader.IsoFileReader;
+import com.palantir.isofilereader.isofilereader.IsoInputStream;
+import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatConstant;
+import com.palantir.isofilereader.isofilereader.udf.UdfFormatException;
 
 public class SpeedComparisonsTests {
     private static final int TEST_COUNT = 2;
@@ -151,7 +154,7 @@ public class SpeedComparisonsTests {
         try (IsoFileReader iso = new IsoFileReader(isoFile, "0,1,0")) {
             GenericInternalIsoFile[] files = iso.getAllFiles();
 
-            RandomAccessFile rawIso = iso.getRawIsoWithAutoClose();
+            MemoryInputIF rawIso = iso.getRawIsoWithAutoClose();
             List<GenericInternalIsoFile> flatFiles = iso.convertTreeFilesToFlatList(files);
 
             flatFiles.forEach(n -> {
@@ -231,7 +234,7 @@ public class SpeedComparisonsTests {
             try (IsoFileReader iso = new IsoFileReader(isoFile, "0,1,0")) {
                 GenericInternalIsoFile[] files = iso.getAllFiles();
 
-                RandomAccessFile rawIso = iso.getRawIsoWithAutoClose();
+                MemoryInputIF rawIso = iso.getRawIsoWithAutoClose();
                 for (String stringOfFileToFind : filesToGet) {
                     Optional<GenericInternalIsoFile> foundFile = iso.getSpecificFileByName(files, stringOfFileToFind);
                     Assertions.assertTrue(foundFile.isPresent());
@@ -262,7 +265,7 @@ public class SpeedComparisonsTests {
             try (IsoFileReader iso = new IsoFileReader(isoFile, "0,1,0")) {
                 GenericInternalIsoFile[] files = iso.getAllFiles();
 
-                RandomAccessFile rawIso = iso.getRawIsoWithAutoClose();
+                MemoryInputIF rawIso = iso.getRawIsoWithAutoClose();
                 List<GenericInternalIsoFile> flatFiles = iso.convertTreeFilesToFlatList(files);
 
                 flatFiles.forEach(n -> {
@@ -324,7 +327,7 @@ public class SpeedComparisonsTests {
             };
 
             for (String fileIv : filesIv) {
-                try (RandomAccessFile randomAccessFile = new RandomAccessFile(isoFile, "r")) {
+                try (MemoryInputIF randomAccessFile = new FileMemoryInput(isoFile)) {
                     Optional<byte[]> data = IsoFileReader.getFileDataWithIVs(randomAccessFile, imageIv, fileIv);
                     if (data.isPresent()) {
                         String md5 = getMD5Hash(data.get());
@@ -394,7 +397,7 @@ public class SpeedComparisonsTests {
             };
 
             for (String fileIv : filesIv) {
-                try (RandomAccessFile randomAccessFile = new RandomAccessFile(isoFile, "r")) {
+                try (MemoryInputIF randomAccessFile = new FileMemoryInput(isoFile)) {
                     Optional<InputStream> data =
                             IsoFileReader.getFileDataAsStreamWithIVs(randomAccessFile, imageIv, fileIv);
                     if (data.isPresent()) {

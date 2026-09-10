@@ -16,23 +16,24 @@
 
 package com.palantir.isofilereader;
 
-import com.palantir.isofilereader.isofilereader.IsoFileReader;
-import com.palantir.isofilereader.isofilereader.iso.IsoFormatInternalDataFile;
-import com.palantir.isofilereader.isofilereader.iso.types.AbstractVolumeDescriptor;
-import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatConstant;
-import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatDirectoryRecord;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.math.BigInteger;
-import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.Objects;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import com.hubersn.memory.MemoryInputIF;
+import com.palantir.isofilereader.isofilereader.IsoFileReader;
+import com.palantir.isofilereader.isofilereader.iso.IsoFormatInternalDataFile;
+import com.palantir.isofilereader.isofilereader.iso.types.AbstractVolumeDescriptor;
+import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatConstant;
+import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatDirectoryRecord;
 
 public class IsoImageTests {
 
@@ -104,7 +105,7 @@ public class IsoImageTests {
             IsoFormatDirectoryRecord[] records = iso.getAllFileRecordsInIsoRaw();
             Assertions.assertNotNull(records);
 
-            RandomAccessFile rawIso = iso.getRawIso();
+            MemoryInputIF rawIso = iso.getRawIso();
             for (IsoFormatDirectoryRecord singleRecord : records) {
                 if (singleRecord.isDirectory()) {
                     continue;

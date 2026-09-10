@@ -16,12 +16,13 @@
 
 package com.palantir.isofilereader.isofilereader;
 
-import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatConstant;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 import java.util.Objects;
+
+import com.hubersn.memory.MemoryInputIF;
+import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatConstant;
 
 /**
  * A InputStream for ISOs, given for a single file, and can be read instead of dumping all bytes into memory.
@@ -31,7 +32,7 @@ public class IsoInputStream extends InputStream {
 
     private static final int DEFAULT_BUFFER_SIZE = 8192;
 
-    private final RandomAccessFile file;
+    private final MemoryInputIF file;
     private final long startingLoc;
     private final long endLoc;
 
@@ -44,7 +45,7 @@ public class IsoInputStream extends InputStream {
      * @param subFile GenericInternalIsoFile or (subtype of UdfInternalDataFile/IsoFormatInternalDataFile) to get
      * @throws IOException occurs when reading the underlying file fails
      */
-    public IsoInputStream(RandomAccessFile file, GenericInternalIsoFile subFile) throws IOException {
+    public IsoInputStream(MemoryInputIF file, GenericInternalIsoFile subFile) throws IOException {
         this.file = file;
         this.startingLoc = subFile.getLogicalSectorLocation() * IsoFormatConstant.BYTES_PER_SECTOR;
         this.endLoc = startingLoc + subFile.getSize();
@@ -59,7 +60,7 @@ public class IsoInputStream extends InputStream {
      * @param length length of the subfile
      * @throws IOException occurs when reading the underlying file fails
      */
-    public IsoInputStream(RandomAccessFile file, long start, long length) throws IOException {
+    public IsoInputStream(MemoryInputIF file, long start, long length) throws IOException {
         this.file = file;
         this.startingLoc = start;
         this.endLoc = startingLoc + length;

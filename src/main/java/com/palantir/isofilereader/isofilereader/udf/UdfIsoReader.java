@@ -16,6 +16,7 @@
 
 package com.palantir.isofilereader.isofilereader.udf;
 
+import com.hubersn.memory.MemoryInputIF;
 import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatConstant;
 import com.palantir.isofilereader.isofilereader.udf.types.files.FileEntry;
 import com.palantir.isofilereader.isofilereader.udf.types.files.FileIdentifierDescriptor;
@@ -33,7 +34,6 @@ import com.palantir.isofilereader.isofilereader.udf.types.types.LongAd;
 import com.palantir.isofilereader.isofilereader.udf.types.types.Tag;
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +46,7 @@ import java.util.Map;
  */
 @SuppressWarnings("StrictUnusedVariable")
 public class UdfIsoReader {
-    private final File isoFile;
+    private final MemoryInputIF isoFile;
     private List<GenericDescriptor> discDescriptors = null;
     private List<Long> udfAnchorLocations = null;
 
@@ -55,7 +55,7 @@ public class UdfIsoReader {
 
     private char separatorChar = File.separatorChar;
 
-    public UdfIsoReader(File isoFile) {
+    public UdfIsoReader(MemoryInputIF isoFile) {
         this.isoFile = isoFile;
     }
 
@@ -69,7 +69,7 @@ public class UdfIsoReader {
         // UDF says the starting pointer should be at either Logical Sector 256 (524,288 bytes in), or N - 256, or N.
         // N is the last sector on the media. In practice first and last seem to be it.
         udfAnchorLocations = new ArrayList<>();
-        try (RandomAccessFile file = new RandomAccessFile(isoFile, "r")) {
+        try (MemoryInputIF file = isoFile.copy()) {
             // This is not supposed to be a valid location, but some images seem to start here... ImgBurn is one of them
             boolean fakeFirstSpotForData = checkSpotForUdfData(file, 32);
             if (fakeFirstSpotForData) {
@@ -133,7 +133,7 @@ public class UdfIsoReader {
      * @return boolean of a valid UDF segment or not
      * @throws IOException Read errors at that location
      */
-    private boolean checkSpotForUdfData(RandomAccessFile file, long logicalSector) throws IOException {
+    private boolean checkSpotForUdfData(MemoryInputIF file, long logicalSector) throws IOException {
         file.seek(logicalSector * IsoFormatConstant.BYTES_PER_SECTOR);
 
         byte[] data = new byte[16];
@@ -156,7 +156,7 @@ public class UdfIsoReader {
         if (discDescriptors == null) {
             getDiscDescriptors();
         }
-        try (RandomAccessFile file = new RandomAccessFile(isoFile, "r")) {
+        try (MemoryInputIF file = isoFile.copy()) {
             rootFiles = indexFileData(file);
         } catch (IOException | UdfFormatException e) {
             throw new RuntimeException(e);
@@ -172,11 +172,11 @@ public class UdfIsoReader {
      * @return byte array of item read
      * @throws IOException if a failure to read occurs we can throw a IOException
      */
-    private byte[] readTocItem(RandomAccessFile file, long logicalPos) throws IOException {
+    private byte[] readTocItem(MemoryInputIF file, long logicalPos) throws IOException {
         return readTocItemRaw(file, logicalPos * IsoFormatConstant.BYTES_PER_SECTOR);
     }
 
-    private byte[] readTocItemRaw(RandomAccessFile file, long purePosition) throws IOException {
+    private byte[] readTocItemRaw(MemoryInputIF file, long purePosition) throws IOException {
         file.seek(purePosition);
         byte[] data = new byte[16];
         int read = file.read(data, 0, 16);
@@ -202,7 +202,7 @@ public class UdfIsoReader {
      * @throws IOException if the image fails to read
      */
     @SuppressWarnings("ReadReturnValueIgnored")
-    private void recursiveTableLookup(RandomAccessFile file, long pos, long stoppingPos)
+    private void recursiveTableLookup(MemoryInputIF file, long pos, long stoppingPos)
             throws IOException, UdfFormatException {
         // Page 136 is the DVD example
         byte[] descriptor = readTocItem(file, pos);
@@ -280,7 +280,7 @@ public class UdfIsoReader {
     }
 
     @SuppressWarnings("StrictUnusedVariable")
-    private UdfInternalDataFile[] indexFileData(RandomAccessFile file) throws IOException, UdfFormatException {
+    private UdfInternalDataFile[] indexFileData(MemoryInputIF file) throws IOException, UdfFormatException {
         // How to read a DVD helps, that starts at page 135 of UDF 2.60
         PartitionDescriptor[] descriptor = (PartitionDescriptor[]) getSpecificDiscDescriptor(Tag.PARTITION_DESCRIPTOR);
         // PartitionDescriptor[] descriptor = getPartitionDescriptors();
@@ -328,7 +328,7 @@ public class UdfIsoReader {
     }
 
     private UdfInternalDataFile getFilesAndFoldersAtLocForFileEntries(
-            RandomAccessFile file,
+            MemoryInputIF file,
             long rootPartitionLogicalSector,
             int lengthOfRecords,
             long localRelativeLogicalSector,
@@ -362,7 +362,7 @@ public class UdfIsoReader {
     }
 
     private UdfInternalDataFile getFilesAndFoldersAtLocForFileIdentifier(
-            RandomAccessFile file,
+            MemoryInputIF file,
             long rootPartitionLogicalSector,
             FileEntry fileEntry,
             FileIdentifierDescriptor parentFolderInfo)
@@ -427,7 +427,7 @@ public class UdfIsoReader {
             if (udfAnchorLocations == null && !checkForUdfData()) {
                 throw new UdfFormatException("Image does not appear to be a UDF image.");
             }
-            try (RandomAccessFile file = new RandomAccessFile(isoFile, "r")) {
+            try (MemoryInputIF file = isoFile.copy()) {
                 recursiveTableLookup(file, udfAnchorLocations.get(0), -1);
             } catch (IOException | UdfFormatException e) {
                 throw new RuntimeException(e);

@@ -28,6 +28,7 @@ import java.util.Objects;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import com.hubersn.Java8Support;
 import com.hubersn.memory.MemoryInputIF;
 import com.palantir.isofilereader.isofilereader.IsoFileReader;
 import com.palantir.isofilereader.isofilereader.iso.IsoFormatInternalDataFile;

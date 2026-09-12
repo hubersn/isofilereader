@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 
 import com.github.stephenc.javaisotools.loopfs.iso9660.Iso9660FileEntry;
 import com.github.stephenc.javaisotools.loopfs.iso9660.Iso9660FileSystem;
+import com.hubersn.Java8Support;
 import com.hubersn.memory.MemoryInputIF;
 import com.palantir.isofilereader.isofilereader.GenericInternalIsoFile;
 import com.palantir.isofilereader.isofilereader.IsoFileReader;

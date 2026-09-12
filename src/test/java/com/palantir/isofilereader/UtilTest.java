@@ -18,6 +18,7 @@ package com.palantir.isofilereader;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.hubersn.Java8Support;
 import com.palantir.isofilereader.isofilereader.Util;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

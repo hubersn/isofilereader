@@ -57,11 +57,8 @@ public class IsoFileReader implements AutoCloseable {
      * @param isoFile file to use
      * @throws IOException in attempting find the correct headers to use, a IO exception occurred
      */
-    public IsoFileReader(File isoFile) throws IOException {
-        this.isoFile = new FileMemoryInput(isoFile);
-        this.traditionalIsoReader = new TraditionalIsoReader(this.isoFile);
-        this.udfIsoReader = new UdfIsoReader(this.isoFile);
-        findOptimalSettings();
+    public IsoFileReader(final File isoFile) throws IOException {
+        this(new FileMemoryInput(isoFile));
     }
 
     /**
@@ -71,8 +68,19 @@ public class IsoFileReader implements AutoCloseable {
      * @param isoData data to use
      * @throws IOException in attempting find the correct headers to use, a IO exception occurred
      */
-    public IsoFileReader(byte[] isoData) throws IOException {
-        this.isoFile = new ByteArrayMemoryInput(isoData);
+    public IsoFileReader(final byte[] isoData) throws IOException {
+        this(new ByteArrayMemoryInput(isoData));
+    }
+
+    /**
+     * Create a new Iso reader with the input data attached, this constructor will automatically scan the iso for which
+     * headers to use.
+     *
+     * @param isoData data to use
+     * @throws IOException in attempting find the correct headers to use, a IO exception occurred
+     */
+    public IsoFileReader(final MemoryInputIF isoData) throws IOException {
+        this.isoFile = isoData;
         this.traditionalIsoReader = new TraditionalIsoReader(this.isoFile);
         this.udfIsoReader = new UdfIsoReader(this.isoFile);
         findOptimalSettings();

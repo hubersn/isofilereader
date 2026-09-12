@@ -16,6 +16,7 @@
 
 package com.palantir.isofilereader;
 
+import com.hubersn.Java8Support;
 import com.palantir.isofilereader.isofilereader.GenericInternalIsoFile;
 import com.palantir.isofilereader.isofilereader.IsoFileReader;
 import com.palantir.isofilereader.isofilereader.udf.UdfFormatException;

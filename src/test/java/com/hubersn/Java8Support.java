@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 For more information, please refer to <http://unlicense.org/>
 */
-package com.palantir.isofilereader;
+package com.hubersn;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,17 +40,38 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 /**
- * Implementations for methods not supported in Java 8.
+ * Implementations for methods called in isofilereader tests not supported in Java 8 - this is not a universal solution because
+ * the fine details of the semantics of the Java 11ff methods is not captured at all - read the JavaDoc for the things to pay attention to!
  */
 public class Java8Support {
 
+  /**
+   * This implementation uses trim() for the input string which has a different semantics on which characters are
+   * actually considered whitespace (isBlank() uses strip() semantics), but for isofilereader this should make no difference.
+   * 
+   * @param s string to check.
+   * @return is given string empty or contains only whitespace according to trim()?
+   */
   public static boolean String_isBlank(final String s) {
     return s.trim().isEmpty();
   }
 
+  /**
+   * Compares two byte arrays - only knows "equals" (0) or "different" (1) returns, not the full lexical semantics from Java 11 array compare.
+   * 
+   * @param array1 first array to compare.
+   * @param array2 second array to compare
+   * @return 0 for equal arrays, all other values signal different arrays
+   */
   public static int Arrays_compare(final byte[] array1, final byte[] array2) {
-    if (array1 == null || array2 == null) {
-      throw new NullPointerException("array to compare must not be null");
+    if (array1 == null && array2 == null) {
+      return 0;
+    }
+    if (array1 == null) {
+      return -1;
+    }
+    if (array2 == null) {
+      return 1;
     }
     // only partial support, but sufficient for us
     return Arrays.equals(array1, array2) ? 0 : 1;

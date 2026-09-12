@@ -35,7 +35,7 @@ import java.util.TimeZone;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.palantir.isofilereader.Java8Support;
+import com.hubersn.Java8Support;
 import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatConstant;
 import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatDirectoryRecord;
 import com.palantir.isofilereader.isofilereader.iso.types.IsoFormatPrimaryVolumeDescriptor;

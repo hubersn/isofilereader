@@ -6,17 +6,22 @@ All my changes and additions to this project are in the "hubersn" branch and lic
 
 Changes and additions:
 - main code is now Java 8 compatible
-- pom.xml for using Maven 3 for building
+- test code is now Java 8 compatible (but does not execute properly yet)
+    - there is a class Java8Support which reproduces the behaviour of various Java 11-only methods - beware that this is not 100% identical functionality, but aims at "good enough for the isofilereader tests"
+- pom.xml for using Maven 3 for building and packaging
+- architecture to plug in arbitrary ISO9660 image data sources instead of relying on `java.io.File`
+    - interface to implement is `com.hubersn.memory.MemoryInputIF` with two implementations, `FileMemoryInput` which wraps a file and delegates to `RandomAccessFile` and `ByteArrayMemoryInput` which is backed by (you guessed it) a byte array
+    - main IsoFileReader class gained a new ctor with `byte[]` which uses this architecture
 - access to inner raw data to enable additional parsing for directory record data
     - this is to parse Acorn CDFS extensions (the one with the ARCHIMEDES descriptions) for RISC OS load/exec address or datestamp/filetype as well as access right attributes and the marker if the first character should really be the "!" instead of the "_" of the entry name
 
-I will try to add basic Joliet capabilities - as far as CDROMFS/RISC OS Select CDFS/CDRFS and CDBurn/CDVDBurn/CDBlaze compatibility requires it - soon.
+There already seems to be basic Joliet capabilities built in, but I don't yet understand the way it works. I have added a simple-minded "guess" to the code that basically biases the result of `findOptimalSettings` towards the usage of the Extended Volume Descriptor if the existing name length check comes out equal. My aim is to extend the code - if needed - as far as CDROMFS/RISC OS Select CDFS/CDRFS and CDBurn/CDVDBurn/CDBlaze-created image compatibility requires it.
 
-Test code not changed yet to be Java 8 compatible, so you need to skip tests when building your Java 8 lib jar. Use the original Gradle build mechanism to run the tests.
+Test code changed to be Java 8 compatible, but does not run properly yet, so you need to skip tests when building your Java 8 lib jar. Use the original Gradle build mechanism to run the tests.
 
-To build the jar for your local maven repo (with neither compiling nor executing the tests because...see above), just execute
+To build the jar for your local maven repo (not executing the tests because...see above), just execute
 ```
-mvn clean install -Dmaven.test.skip=true
+mvn clean install -DskipTests
 ```
 
 I changed the Maven coordinates to avoid collision with the original. To use, add the following to your pom.xml dependencies:
@@ -48,6 +53,8 @@ To access Acorn CDFS extension data from a GenericInternalIsoFile, do something 
 ```
 
 This method will return the additional data of the file or directory referenced by this ISO directory record. If the first 10 bytes are ASCII `ARCHIMEDES`, the next three words are load address, exec address and attributes. If bit 8 of attributes is set, the name of this file object needs to have its first character (usually "_") replaced with "!".
+
+And now the original README content...
 
 # IsoFileReader 💿
 

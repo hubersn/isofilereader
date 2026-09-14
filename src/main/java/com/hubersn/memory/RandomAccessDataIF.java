@@ -37,16 +37,7 @@ import java.io.IOException;
 /**
  * Make sure that code stays Java 8 compatible!
  */
-public interface MemoryInputIF extends Closeable {
-  /**
-   * Reads a single byte at the absolute position.
-   */
-  byte readByte(long position) throws IOException;
-
-  /**
-   * Reads up to 'length' bytes starting at absolute position into the destination array.
-   */
-  void readBytes(long position, byte[] dest, int offset, int length) throws IOException;
+public interface RandomAccessDataIF extends Closeable {
 
   /**
    * Reads up to 'length' bytes starting at current position into the destination array.
@@ -72,7 +63,7 @@ public interface MemoryInputIF extends Closeable {
    */
   long length();
 
-  MemoryInputIF copy() throws IOException;
+  RandomAccessDataIF copy() throws IOException;
 
   @Override
   default void close() throws IOException {

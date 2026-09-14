@@ -35,8 +35,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.github.stephenc.javaisotools.loopfs.iso9660.Iso9660FileSystem;
-import com.hubersn.memory.FileMemoryInput;
-import com.hubersn.memory.MemoryInputIF;
+import com.hubersn.memory.FileRandomAccessData;
+import com.hubersn.memory.RandomAccessDataIF;
 import com.palantir.isofilereader.isofilereader.GenericInternalIsoFile;
 import com.palantir.isofilereader.isofilereader.IsoFileReader;
 import com.palantir.isofilereader.isofilereader.IsoInputStream;
@@ -154,7 +154,7 @@ public class SpeedComparisonsTests {
         try (IsoFileReader iso = new IsoFileReader(isoFile, "0,1,0")) {
             GenericInternalIsoFile[] files = iso.getAllFiles();
 
-            MemoryInputIF rawIso = iso.getRawIsoWithAutoClose();
+            RandomAccessDataIF rawIso = iso.getRawIsoWithAutoClose();
             List<GenericInternalIsoFile> flatFiles = iso.convertTreeFilesToFlatList(files);
 
             flatFiles.forEach(n -> {
@@ -234,7 +234,7 @@ public class SpeedComparisonsTests {
             try (IsoFileReader iso = new IsoFileReader(isoFile, "0,1,0")) {
                 GenericInternalIsoFile[] files = iso.getAllFiles();
 
-                MemoryInputIF rawIso = iso.getRawIsoWithAutoClose();
+                RandomAccessDataIF rawIso = iso.getRawIsoWithAutoClose();
                 for (String stringOfFileToFind : filesToGet) {
                     Optional<GenericInternalIsoFile> foundFile = iso.getSpecificFileByName(files, stringOfFileToFind);
                     Assertions.assertTrue(foundFile.isPresent());
@@ -265,7 +265,7 @@ public class SpeedComparisonsTests {
             try (IsoFileReader iso = new IsoFileReader(isoFile, "0,1,0")) {
                 GenericInternalIsoFile[] files = iso.getAllFiles();
 
-                MemoryInputIF rawIso = iso.getRawIsoWithAutoClose();
+                RandomAccessDataIF rawIso = iso.getRawIsoWithAutoClose();
                 List<GenericInternalIsoFile> flatFiles = iso.convertTreeFilesToFlatList(files);
 
                 flatFiles.forEach(n -> {
@@ -327,7 +327,7 @@ public class SpeedComparisonsTests {
             };
 
             for (String fileIv : filesIv) {
-                try (MemoryInputIF randomAccessFile = new FileMemoryInput(isoFile)) {
+                try (RandomAccessDataIF randomAccessFile = new FileRandomAccessData(isoFile)) {
                     Optional<byte[]> data = IsoFileReader.getFileDataWithIVs(randomAccessFile, imageIv, fileIv);
                     if (data.isPresent()) {
                         String md5 = getMD5Hash(data.get());
@@ -397,7 +397,7 @@ public class SpeedComparisonsTests {
             };
 
             for (String fileIv : filesIv) {
-                try (MemoryInputIF randomAccessFile = new FileMemoryInput(isoFile)) {
+                try (RandomAccessDataIF randomAccessFile = new FileRandomAccessData(isoFile)) {
                     Optional<InputStream> data =
                             IsoFileReader.getFileDataAsStreamWithIVs(randomAccessFile, imageIv, fileIv);
                     if (data.isPresent()) {

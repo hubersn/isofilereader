@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hubersn.Java8Support;
-import com.hubersn.memory.MemoryInputIF;
+import com.hubersn.memory.RandomAccessDataIF;
 import com.palantir.isofilereader.isofilereader.IsoFileReader;
 import com.palantir.isofilereader.isofilereader.iso.IsoFormatInternalDataFile;
 import com.palantir.isofilereader.isofilereader.iso.types.AbstractVolumeDescriptor;
@@ -106,7 +106,7 @@ public class IsoImageTests {
             IsoFormatDirectoryRecord[] records = iso.getAllFileRecordsInIsoRaw();
             Assertions.assertNotNull(records);
 
-            MemoryInputIF rawIso = iso.getRawIso();
+            RandomAccessDataIF rawIso = iso.getRawIso();
             for (IsoFormatDirectoryRecord singleRecord : records) {
                 if (singleRecord.isDirectory()) {
                     continue;

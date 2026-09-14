@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import com.github.stephenc.javaisotools.loopfs.iso9660.Iso9660FileEntry;
 import com.github.stephenc.javaisotools.loopfs.iso9660.Iso9660FileSystem;
 import com.hubersn.Java8Support;
-import com.hubersn.memory.MemoryInputIF;
+import com.hubersn.memory.RandomAccessDataIF;
 import com.palantir.isofilereader.isofilereader.GenericInternalIsoFile;
 import com.palantir.isofilereader.isofilereader.IsoFileReader;
 import com.palantir.isofilereader.isofilereader.iso.IsoFormatInternalDataFile;
@@ -162,7 +162,7 @@ public class IsoImageLargeTests {
             IsoFormatDirectoryRecord[] records = iso.getAllFileRecordsInIsoRaw();
             Assertions.assertNotNull(records);
 
-            MemoryInputIF rawIso = iso.getRawIso();
+            RandomAccessDataIF rawIso = iso.getRawIso();
             for (IsoFormatDirectoryRecord singleRecord : records) {
                 if (singleRecord.isDirectory()) {
                     continue;
@@ -368,7 +368,7 @@ public class IsoImageLargeTests {
             IsoFileReader isoImage)
             throws IOException {
         InputStream oldLibraryInput = discFs.getInputStream(oldLibrary);
-        MemoryInputIF newLibraryInput = isoImage.getRawIsoWithAutoClose();
+        RandomAccessDataIF newLibraryInput = isoImage.getRawIsoWithAutoClose();
         System.out.println("New System Seeking Logical Sector: " + newLibrary.getLogicalSectorLocation());
         newLibraryInput.seek(newLibrary.getLogicalSectorLocation() * 2048);
         long posToEnd = oldLibrary.getSize();

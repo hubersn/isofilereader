@@ -28,9 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.hubersn.memory.ByteArrayMemoryInput;
-import com.hubersn.memory.FileMemoryInput;
-import com.hubersn.memory.MemoryInputIF;
+import com.hubersn.memory.ByteArrayRandomAccessData;
+import com.hubersn.memory.FileRandomAccessData;
+import com.hubersn.memory.RandomAccessDataIF;
 import com.palantir.isofilereader.isofilereader.iso.IsoFormatInternalDataFile;
 import com.palantir.isofilereader.isofilereader.iso.TraditionalIsoReader;
 import com.palantir.isofilereader.isofilereader.iso.types.AbstractVolumeDescriptor;
@@ -43,12 +43,31 @@ import com.palantir.isofilereader.isofilereader.udf.UdfInternalDataFile;
 import com.palantir.isofilereader.isofilereader.udf.UdfIsoReader;
 
 public class IsoFileReader implements AutoCloseable {
-    private final MemoryInputIF isoFile;
-    private final TraditionalIsoReader traditionalIsoReader;
-    private final List<MemoryInputIF> openFileHandles = new ArrayList<>();
+    private RandomAccessDataIF isoSourceData;
+    private TraditionalIsoReader traditionalIsoReader;
+    private List<RandomAccessDataIF> openFileHandles = new ArrayList<>();
     private int udfModeInUse = 0; // 0 is not initialized, 1 is do not use, 2 is use. This is used to manually override
     // the auto-detection of UDF.
-    private final UdfIsoReader udfIsoReader;
+    private UdfIsoReader udfIsoReader;
+
+    /**
+     * Empty ctor for extending classes - does nothing - call setIsoSourceData afterwards to init.
+     */
+    protected IsoFileReader() {
+      // intentionally empty
+    }
+
+    /**
+     * Sets the given data object as the source data and create the ISO9660 and UDF reader classes - does
+     * not init settings, caller is responsible to call findOptimalSettings() or do something similar.
+     * 
+     * @param isoSourceData source data
+     */
+    protected void setIsoSourceData(final RandomAccessDataIF isoSourceData) {
+      this.isoSourceData = isoSourceData;
+      this.traditionalIsoReader = new TraditionalIsoReader(this.isoSourceData);
+      this.udfIsoReader = new UdfIsoReader(this.isoSourceData);
+    }
 
     /**
      * Create a new file reader with the file attached, this constructor will automatically scan the iso for which
@@ -58,7 +77,7 @@ public class IsoFileReader implements AutoCloseable {
      * @throws IOException in attempting find the correct headers to use, a IO exception occurred
      */
     public IsoFileReader(final File isoFile) throws IOException {
-        this(new FileMemoryInput(isoFile));
+        this(new FileRandomAccessData(isoFile));
     }
 
     /**
@@ -69,7 +88,7 @@ public class IsoFileReader implements AutoCloseable {
      * @throws IOException in attempting find the correct headers to use, a IO exception occurred
      */
     public IsoFileReader(final byte[] isoData) throws IOException {
-        this(new ByteArrayMemoryInput(isoData));
+        this(new ByteArrayRandomAccessData(isoData));
     }
 
     /**
@@ -79,10 +98,10 @@ public class IsoFileReader implements AutoCloseable {
      * @param isoData data to use
      * @throws IOException in attempting find the correct headers to use, a IO exception occurred
      */
-    public IsoFileReader(final MemoryInputIF isoData) throws IOException {
-        this.isoFile = isoData;
-        this.traditionalIsoReader = new TraditionalIsoReader(this.isoFile);
-        this.udfIsoReader = new UdfIsoReader(this.isoFile);
+    public IsoFileReader(final RandomAccessDataIF isoData) throws IOException {
+        this.isoSourceData = isoData;
+        this.traditionalIsoReader = new TraditionalIsoReader(this.isoSourceData);
+        this.udfIsoReader = new UdfIsoReader(this.isoSourceData);
         findOptimalSettings();
     }
 
@@ -93,9 +112,9 @@ public class IsoFileReader implements AutoCloseable {
      * @param setting header setting to use, formatted as "#,#,#"
      */
     public IsoFileReader(File isoFile, String setting) throws IOException {
-        this.isoFile = new FileMemoryInput(isoFile);
-        this.traditionalIsoReader = new TraditionalIsoReader(this.isoFile);
-        this.udfIsoReader = new UdfIsoReader(this.isoFile);
+        this.isoSourceData = new FileRandomAccessData(isoFile);
+        this.traditionalIsoReader = new TraditionalIsoReader(this.isoSourceData);
+        this.udfIsoReader = new UdfIsoReader(this.isoSourceData);
         implementGivenSetting(setting);
     }
 
@@ -216,10 +235,10 @@ public class IsoFileReader implements AutoCloseable {
      * @return RandomAccessFile access with read to the file
      * @throws FileNotFoundException if the file is not found this can error
      */
-    public MemoryInputIF getRawIso() throws FileNotFoundException {
+    public RandomAccessDataIF getRawIso() throws FileNotFoundException {
       // TODO not equivalent
         try {
-          return this.isoFile.copy();
+          return this.isoSourceData.copy();
         } catch (IOException e) {
           throw new FileNotFoundException(e.getMessage());
         }
@@ -232,11 +251,11 @@ public class IsoFileReader implements AutoCloseable {
      * @return get a RandomAccessFile handle
      * @throws FileNotFoundException if file cant be found then this is thrown.
      */
-    public MemoryInputIF getRawIsoWithAutoClose() throws FileNotFoundException {
+    public RandomAccessDataIF getRawIsoWithAutoClose() throws FileNotFoundException {
       // TODO not equivalent
-        MemoryInputIF file;
+        RandomAccessDataIF file;
         try {
-          file = this.isoFile.copy();
+          file = this.isoSourceData.copy();
         } catch (IOException e) {
           throw new FileNotFoundException(e.getMessage());
         }
@@ -356,7 +375,7 @@ public class IsoFileReader implements AutoCloseable {
     public byte[] getFileBytes(GenericInternalIsoFile file) throws IOException {
         long dataSize = file.getSize();
         byte[] data = new byte[(int) dataSize];
-        MemoryInputIF randomAccessFile = null;
+        RandomAccessDataIF randomAccessFile = null;
         try {
             randomAccessFile = getRawIso();
             randomAccessFile.seek(file.getLogicalSectorLocation() * IsoFormatConstant.BYTES_PER_SECTOR);
@@ -441,7 +460,7 @@ public class IsoFileReader implements AutoCloseable {
      * @return InputStream
      * @throws IOException can occur when failing to read underlying media
      */
-    public InputStream getFileStream(MemoryInputIF file, GenericInternalIsoFile subFile) throws IOException {
+    public InputStream getFileStream(RandomAccessDataIF file, GenericInternalIsoFile subFile) throws IOException {
         return new IsoInputStream(file, subFile);
     }
 
@@ -518,11 +537,11 @@ public class IsoFileReader implements AutoCloseable {
      * @throws NoSuchAlgorithmException failure to load MD5 in this JDK
      */
     public String getInitializationVectorForImage() throws IOException, NoSuchAlgorithmException {
-        MemoryInputIF file = getRawIsoWithAutoClose();
+        RandomAccessDataIF file = getRawIsoWithAutoClose();
         return getInitializationVectorForImageWithPassedFile(file);
     }
 
-    private static String getInitializationVectorForImageWithPassedFile(MemoryInputIF file)
+    private static String getInitializationVectorForImageWithPassedFile(RandomAccessDataIF file)
             throws IOException, NoSuchAlgorithmException {
         String iv = "I1|";
         int bytesToRead = 2048;
@@ -549,7 +568,7 @@ public class IsoFileReader implements AutoCloseable {
     }
 
     private static void updateHashWithData(
-            MessageDigest md, MemoryInputIF file, int bytesToRead, int numberOfReadLocations) throws IOException {
+            MessageDigest md, RandomAccessDataIF file, int bytesToRead, int numberOfReadLocations) throws IOException {
         for (long loc = 0; loc < numberOfReadLocations; loc += (file.length() / numberOfReadLocations) + 1) {
             file.seek(loc);
             byte[] byteArray = new byte[bytesToRead];
@@ -615,7 +634,7 @@ public class IsoFileReader implements AutoCloseable {
 
     public static Optional<byte[]> getFileDataWithIVsFromFile(File file, String imageIv, String fileIv)
             throws IOException, NoSuchAlgorithmException {
-        MemoryInputIF myFile = new FileMemoryInput(file);
+        RandomAccessDataIF myFile = new FileRandomAccessData(file);
         Optional<byte[]> data = getFileDataWithIVs(myFile, imageIv, fileIv);
         myFile.close();
         return data;
@@ -635,7 +654,7 @@ public class IsoFileReader implements AutoCloseable {
      * @throws IOException Opening the image can fail resulting in a IOException
      * @throws NoSuchAlgorithmException MD5 is used to verify the IV, if MD5 is not in the local JDK this will fail
      */
-    public static Optional<byte[]> getFileDataWithIVs(MemoryInputIF file, String imageIv, String fileIv)
+    public static Optional<byte[]> getFileDataWithIVs(RandomAccessDataIF file, String imageIv, String fileIv)
             throws IOException, NoSuchAlgorithmException {
         /*
            Example
@@ -673,7 +692,7 @@ public class IsoFileReader implements AutoCloseable {
     }
 
     private static String reconstructFileIv(
-            MemoryInputIF rafFile,
+            RandomAccessDataIF rafFile,
             int bytesToRead,
             int numberOfReadLocations,
             long size,
@@ -705,7 +724,7 @@ public class IsoFileReader implements AutoCloseable {
      * @throws NoSuchAlgorithmException MD5 is used to verify IVs
      */
     public static Optional<InputStream> getFileDataAsStreamWithIVs(
-            MemoryInputIF rafFile, String imageIv, String fileIv) throws IOException, NoSuchAlgorithmException {
+            RandomAccessDataIF rafFile, String imageIv, String fileIv) throws IOException, NoSuchAlgorithmException {
         /*
            Example
            I-IV: I1|2048|10|1310720|345bd27a7de3762f50b260f197023c13
@@ -746,7 +765,7 @@ public class IsoFileReader implements AutoCloseable {
      */
     public static Optional<InputStream> getFileDataAsStreamWithIVsFromFile(File file, String imageIv, String fileIv)
             throws IOException, NoSuchAlgorithmException {
-        MemoryInputIF rafFile = new FileMemoryInput(file);
+        RandomAccessDataIF rafFile = new FileRandomAccessData(file);
         return getFileDataAsStreamWithIVs(rafFile, imageIv, fileIv);
     }
 }

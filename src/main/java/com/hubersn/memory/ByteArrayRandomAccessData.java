@@ -37,7 +37,7 @@ import java.util.Objects;
 /**
  * Minimal implementation of MemoryInputIF for in-memory sources.
  */
-public class ByteArrayMemoryInput implements MemoryInputIF {
+public class ByteArrayRandomAccessData implements RandomAccessDataIF {
 
   private final byte[] data;
   private final int offset;
@@ -45,11 +45,11 @@ public class ByteArrayMemoryInput implements MemoryInputIF {
 
   private int currentPosition = 0;
 
-  public ByteArrayMemoryInput(final byte[] data) {
+  public ByteArrayRandomAccessData(final byte[] data) {
     this(data, 0, data.length);
   }
 
-  public ByteArrayMemoryInput(final byte[] data, final int offset, final int length) {
+  public ByteArrayRandomAccessData(final byte[] data, final int offset, final int length) {
     this.data = Objects.requireNonNull(data, "data cannot be null");
     if (offset < 0 || length < 0 || offset + length > data.length) {
       throw new IndexOutOfBoundsException("Invalid offset or length for byte array");
@@ -62,13 +62,11 @@ public class ByteArrayMemoryInput implements MemoryInputIF {
     this.currentPosition = (int)position;
   }
 
-  @Override
   public byte readByte(final long position) throws IOException {
     checkBounds(position, 1);
     return this.data[this.offset + (int) position];
   }
 
-  @Override
   public void readBytes(final long position, final byte[] dest, final int destOffset, final int length) throws IOException {
     checkBounds(position, length);
     System.arraycopy(this.data, this.offset + (int) position, dest, destOffset, length);
@@ -99,7 +97,7 @@ public class ByteArrayMemoryInput implements MemoryInputIF {
   }
 
   @Override
-  public MemoryInputIF copy() {
+  public RandomAccessDataIF copy() {
     return this;
   }
 

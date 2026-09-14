@@ -39,13 +39,13 @@ import java.io.RandomAccessFile;
 /**
  * Minimal implementation of MemoryInputIF for File source.
  */
-public class FileMemoryInput implements MemoryInputIF {
+public class FileRandomAccessData implements RandomAccessDataIF {
 
   private final File file;
   private final RandomAccessFile raf;
   private final long size;
 
-  public FileMemoryInput(final File file) throws IOException {
+  public FileRandomAccessData(final File file) throws IOException {
     this.file = file;
     if (!file.exists()) {
       throw new FileNotFoundException("File not found: " + file.getAbsolutePath());
@@ -54,7 +54,6 @@ public class FileMemoryInput implements MemoryInputIF {
     this.size = this.raf.length();
   }
 
-  @Override
   public byte readByte(final long position) throws IOException {
     seek(position);
     byte[] data = new byte[1];
@@ -62,7 +61,6 @@ public class FileMemoryInput implements MemoryInputIF {
     return data[0];
   }
 
-  @Override
   public void readBytes(final long position, final byte[] dest, final int destOffset, final int length) throws IOException {
     seek(position);
     this.raf.read(dest, destOffset, length);
@@ -99,8 +97,8 @@ public class FileMemoryInput implements MemoryInputIF {
   }
 
   @Override
-  public MemoryInputIF copy() throws IOException {
-    return new FileMemoryInput(this.file);
+  public RandomAccessDataIF copy() throws IOException {
+    return new FileRandomAccessData(this.file);
   }
 
   @Override

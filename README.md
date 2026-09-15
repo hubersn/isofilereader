@@ -8,6 +8,7 @@ Changes and additions:
 - main code is now Java 8 compatible
 - test code is now Java 8 compatible (but does not execute properly yet)
     - there is a class Java8Support which reproduces the behaviour of various Java 11-only methods - beware that this is not 100% identical functionality, but aims at "good enough for the isofilereader tests"
+- fixed various problems in tests that assumed English JVM locale for date comparisons
 - pom.xml for using Maven 3 for building and packaging
 - architecture to plug in arbitrary ISO9660 image data sources instead of relying on `java.io.File`
     - interface to implement is `com.hubersn.memory.MemoryInputIF` with two implementations, `FileMemoryInput` which wraps a file and delegates to `RandomAccessFile` and `ByteArrayMemoryInput` which is backed by (you guessed it) a byte array

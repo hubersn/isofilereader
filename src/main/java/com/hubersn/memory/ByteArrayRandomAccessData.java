@@ -58,18 +58,9 @@ public class ByteArrayRandomAccessData implements RandomAccessDataIF {
     this.size = length;
   }
 
+  @Override
   public void seek(final long position) {
     this.currentPosition = (int)position;
-  }
-
-  public byte readByte(final long position) throws IOException {
-    checkBounds(position, 1);
-    return this.data[this.offset + (int) position];
-  }
-
-  public void readBytes(final long position, final byte[] dest, final int destOffset, final int length) throws IOException {
-    checkBounds(position, length);
-    System.arraycopy(this.data, this.offset + (int) position, dest, destOffset, length);
   }
 
   @Override

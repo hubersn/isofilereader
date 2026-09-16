@@ -54,23 +54,12 @@ public class FileRandomAccessData implements RandomAccessDataIF {
     this.size = this.raf.length();
   }
 
-  public byte readByte(final long position) throws IOException {
-    seek(position);
-    byte[] data = new byte[1];
-    this.raf.read(data, 0, 1);
-    return data[0];
-  }
-
-  public void readBytes(final long position, final byte[] dest, final int destOffset, final int length) throws IOException {
-    seek(position);
-    this.raf.read(dest, destOffset, length);
-  }
-
   @Override
   public long length() {
     return this.size;
   }
 
+  @Override
   public void seek(final long position) throws IOException {
     this.raf.seek(position);
   }

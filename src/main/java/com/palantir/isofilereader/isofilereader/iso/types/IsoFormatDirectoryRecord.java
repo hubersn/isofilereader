@@ -96,15 +96,21 @@ public class IsoFormatDirectoryRecord {
         fileIdentifier = Arrays.copyOfRange(record, 33, 33 + Byte.toUnsignedInt(lenOfFileIdentifier));
         // 34+lenOfFileIdentifier
         // Padding
-        if (record.length > (34 + Byte.toUnsignedInt(lenOfFileIdentifier))) {
+        // fail-safe reading of RockRidge attributes
+        try {
+          if (record.length > (34 + Byte.toUnsignedInt(lenOfFileIdentifier))) {
             if (getLenOfFileIdentifierAsInt() % 2 == 0) {
-                // Optional padding bit
-                rockRidgeAttributeMap = readAttributes(
-                        Arrays.copyOfRange(record, 34 + Byte.toUnsignedInt(lenOfFileIdentifier), record.length));
+              // Optional padding bit
+              rockRidgeAttributeMap = readAttributes(
+                                                     Arrays.copyOfRange(record, 34 + Byte.toUnsignedInt(lenOfFileIdentifier), record.length));
             } else {
-                rockRidgeAttributeMap = readAttributes(
-                        Arrays.copyOfRange(record, 33 + Byte.toUnsignedInt(lenOfFileIdentifier), record.length));
+              rockRidgeAttributeMap = readAttributes(
+                                                     Arrays.copyOfRange(record, 33 + Byte.toUnsignedInt(lenOfFileIdentifier), record.length));
             }
+          }
+        } catch (final Exception ex) {
+          System.out.println("Exception while scanning RockRidge attributes, skipping...");
+          ex.printStackTrace(System.out);
         }
     }
 

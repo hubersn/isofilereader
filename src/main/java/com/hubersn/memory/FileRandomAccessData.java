@@ -82,7 +82,7 @@ public class FileRandomAccessData implements RandomAccessDataIF {
   @Override
   public int read(byte[] dest)
       throws IOException {
-    return read(dest, 0, dest.length);
+    return this.raf.read(dest);
   }
 
   @Override

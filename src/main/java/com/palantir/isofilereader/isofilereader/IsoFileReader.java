@@ -287,16 +287,13 @@ public class IsoFileReader implements AutoCloseable {
         int bestTableSoFar = -1;
         int longestFileNameFound = -1;
         boolean enableRockRidge = false;
-        boolean enhancedBias = false;
         for (int i = 0; i < headers.length; i++) {
-          enhancedBias = false;
             AbstractVolumeDescriptor vol = headers[i];
             IsoFormatDirectoryRecord rootIsoDirectoryRecord;
             switch (vol.getVolumeDescriptorTypeAsInt()) {
                 case AbstractVolumeDescriptor.IsoEnhancedVolumeDescriptor:
                     rootIsoDirectoryRecord = ((IsoFormatEnhancedVolumeDescriptor) vol)
                             .getDirectoryRecordForRootDirectoryAsIsoDirectorRecord();
-                    enhancedBias = true;
                     break;
                 case AbstractVolumeDescriptor.IsoPrimaryVolumeDescriptor:
                 default:
@@ -324,7 +321,7 @@ public class IsoFileReader implements AutoCloseable {
                 }
                 // Checking with enhanced descriptors without rock ridge
                 temp = traditionalIsoReader.getLongestFileNameWithoutRockRidge(rootLevelDiscFolder);
-                if (temp > longestFileNameFound || (temp == longestFileNameFound && enhancedBias)) {
+                if (temp > longestFileNameFound) {
                     enableRockRidge = false;
                     bestTableSoFar = i;
                     longestFileNameFound = temp;
@@ -472,12 +469,10 @@ public class IsoFileReader implements AutoCloseable {
      * @return the file in question
      */
     public Optional<GenericInternalIsoFile> getSpecificFileByName(GenericInternalIsoFile[] files, String filename) {
-        String paddedFilename = filename;
-        if (!paddedFilename.startsWith(File.separator)) {
-            paddedFilename = File.separator + paddedFilename;
-        }
-
-        String normalizedFilename = paddedFilename.replace('\\', '/');
+        String normalizedFilename = filename.replace('\\', '/');
+        if (!normalizedFilename.startsWith("/")) {
+          normalizedFilename = File.separator + normalizedFilename;
+      }
         if ("/".equals(normalizedFilename)) {
             return Optional.of(files[0]);
         }

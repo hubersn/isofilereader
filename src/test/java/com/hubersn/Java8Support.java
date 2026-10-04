@@ -31,6 +31,7 @@ For more information, please refer to <http://unlicense.org/>
 */
 package com.hubersn;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -82,8 +83,15 @@ public class Java8Support {
     return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
   }
 
-  public static byte[] InputStream_readAllBytes(final InputStream is) throws IOException {
-    return load(is);
+  public static byte[] InputStream_readAllBytes(final InputStream inputStream) throws IOException {
+    final byte[] buffer = new byte[8192];
+    int readLen;
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    while ((readLen = inputStream.read(buffer, 0, 8192)) != -1)
+      outputStream.write(buffer, 0, readLen);
+
+    return outputStream.toByteArray();
   }
 
   public static int InputStream_readNBytes(final InputStream is, final byte[] b, int off, int len) throws IOException {
@@ -101,48 +109,15 @@ public class Java8Support {
   }
 
   public static long InputStream_transferTo(InputStream source, OutputStream target) throws IOException {
-    byte[] buf = new byte[8192];
+    final byte[] buffer = new byte[8192];
     long copied = 0;
     int length;
-    while ((length = source.read(buf)) != -1) {
-        target.write(buf, 0, length);
+    while ((length = source.read(buffer)) != -1) {
+        target.write(buffer, 0, length);
         copied += length;
     }
     return copied;
   }
 
-  private static byte[] load(final InputStream is) throws IOException {
-    return load(is, 8192);
-  }
-
-  private static byte[] load(final InputStream is, int bufferSize) throws IOException {
-    byte[] tmpData = new byte[bufferSize];
-    int offs = 0;
-    int addOn = bufferSize * 2;
-
-    try {
-      do {
-        final int readLen = is.read(tmpData, offs, tmpData.length - offs);
-        if (readLen == -1) {
-          break;
-        }
-        offs += readLen;
-        if (offs == tmpData.length) {
-          final byte[] newres = new byte[tmpData.length + addOn];
-          if (addOn < 1048576) {
-            addOn = addOn * 2;
-          }
-          System.arraycopy(tmpData, 0, newres, 0, tmpData.length);
-          tmpData = newres;
-        }
-      } while (true);
-    } finally {
-      is.close();
-    }
-
-    final byte[] data = new byte[offs];
-    System.arraycopy(tmpData, 0, data, 0, offs);
-    return data;
-  }
 
 }

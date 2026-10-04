@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -76,7 +77,7 @@ public class GenericImageTests {
             // Real must be 23:08
             System.out.println(date);
             String input = "Thu Nov 21 23:08:37 UTC 2019";
-            SimpleDateFormat parser = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy");
+            SimpleDateFormat parser = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy", Locale.ENGLISH);
             Date knownDate = parser.parse(input);
             System.out.println("Test Date: " + knownDate);
             System.out.println("From File: " + date);
@@ -190,7 +191,7 @@ public class GenericImageTests {
             byte[] dataFromFile = iso.getFileBytes(generalFile.get());
             String getDate = String.valueOf(generalFile.get().getDateAsDate().get());
             String input = "Tue May 18 18:21:57 EDT 2021";
-            SimpleDateFormat parser = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy");
+            SimpleDateFormat parser = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy", Locale.ENGLISH);
             Date date = parser.parse(input);
             Assertions.assertEquals(String.valueOf(date), getDate);
             // This equals "LONG "

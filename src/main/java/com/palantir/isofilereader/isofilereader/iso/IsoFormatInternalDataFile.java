@@ -209,4 +209,12 @@ public class IsoFormatInternalDataFile extends GenericInternalIsoFile {
     public long getLogicalSectorLocation() {
         return isoDirectoryRecord.getLocOfExtAsLong();
     }
+
+    @Override
+    public String toString() {
+      return "IsoFormatInternalDataFile [children=" + this.children + ", isoDirectoryRecord=" + this.isoDirectoryRecord + ", useRockRidge="
+          + this.useRockRidge + ", parent FileName=" + this.parent.getFileName() + ", isDirectory()=" + isDirectory() + ", getDateAsDate()=" + getDateAsDate()
+          + ", getFileName()=" + getFileName() + ", getSize()=" + getSize() + ", getLogicalSectorLocation()=" + getLogicalSectorLocation()
+          + "]";
+    }
 }

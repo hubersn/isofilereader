@@ -1,8 +1,8 @@
 # About this fork
 
-This is an experimental fork of isofilereader for a forthcoming project of mine.
+This is an experimental fork of isofilereader for a forthcoming project of mine. Focus is on ISO9660 and not UDF, because my usage scenario involves only RISC OS-created CDs/DVDs/Blu-Rays, and UDF was never used in RISC OS world.
 
-All my changes and additions to this project are in the "hubersn" branch and licensed under Apache-2.0 (for compatibility with the parent project), The Unlicence (to maximize your freedom) or in the Public Domain (if this is possible in your area of jurisdiction), whichever you choose. All changes are done without AI.
+All my changes and additions to this project are in the "hubersn" branch and dual-licensed under Apache-2.0 (for compatibility with the parent project) or The Unlicense (to maximize your freedom) - the latter is the closest you can get to Public Domain if you live in Germany. All changes are done without AI, although I cannot guarantee that no knowledge of mine came from AI-generated documentation..
 
 Changes and additions:
 - main code is now Java 8 compatible
@@ -11,12 +11,15 @@ Changes and additions:
 - fixed various problems in tests that assumed English JVM locale for date comparisons
 - pom.xml for using Maven 3 for building and packaging
 - architecture to plug in arbitrary ISO9660 image data sources instead of relying on `java.io.File`
-    - interface to implement is `com.hubersn.memory.MemoryInputIF` with two implementations, `FileMemoryInput` which wraps a file and delegates to `RandomAccessFile` and `ByteArrayMemoryInput` which is backed by (you guessed it) a byte array
+    - interface to implement is `com.hubersn.memory.RandomAccessDataIF` with two implementations, `FileRandomAccessData` which wraps a file and delegates to `RandomAccessFile` and `ByteArrayRandomAccessData` which is backed by (you guessed it) a byte array
     - main IsoFileReader class gained a new ctor with `byte[]` which uses this architecture
 - access to inner raw data to enable additional parsing for directory record data
     - this is to parse Acorn CDFS extensions (the one with the ARCHIMEDES descriptions) for RISC OS load/exec address or datestamp/filetype as well as access right attributes and the marker if the first character should really be the "!" instead of the "_" of the entry name
+- made RockRidge extension parsing more robust (basically a big try-catch) because isofilereader failed to read some RISC OS CDs
 
 There already seems to be basic Joliet capabilities built in, but I don't yet understand the way it works. I have added a simple-minded "guess" to the code that basically biases the result of `findOptimalSettings` towards the usage of the Extended Volume Descriptor if the existing name length check comes out equal. My aim is to extend the code - if needed - as far as CDROMFS/RISC OS Select CDFS/CDRFS and CDBurn/CDVDBurn/CDBlaze-created image compatibility requires it.
+
+A first step is the introduction of `IsoReader` as the new main entry point. This allows for the use of a two-step calling scheme where the caller can specify which format is preferred - plain ISO9660, RockRidge or Joliet. The Format detection is currently incomplete, but is sufficient for CD(VD)Burn-created images. This no longer needs the full scanning of the directory tree to search for RockRidge stuff of the original code. Note that my use-case completely ignores UDF because it is not a thing in RISC OS world.
 
 Test code changed to be Java 8 compatible, but does not run properly yet, so you need to skip tests when building your Java 8 lib jar. Use the original Gradle build mechanism to run the tests.
 

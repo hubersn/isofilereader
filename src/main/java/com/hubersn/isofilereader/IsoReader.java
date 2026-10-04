@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 For more information, please refer to <http://unlicense.org/>
 */
-package com.palantir.isofilereader.isofilereader;
+package com.hubersn.isofilereader;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +37,7 @@ import java.io.IOException;
 import com.hubersn.memory.ByteArrayRandomAccessData;
 import com.hubersn.memory.FileRandomAccessData;
 import com.hubersn.memory.RandomAccessDataIF;
+import com.palantir.isofilereader.isofilereader.IsoFileReader;
 import com.palantir.isofilereader.isofilereader.iso.types.AbstractVolumeDescriptor;
 
 /**

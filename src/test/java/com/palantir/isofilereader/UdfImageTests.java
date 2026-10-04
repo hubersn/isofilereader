@@ -35,6 +35,7 @@ import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -330,7 +331,7 @@ public class UdfImageTests {
             String date = String.valueOf(bootWim.get().getDateAsDate().get());
             System.out.println(date);
             String input = "Thu Sep 08 00:07:42 EDT 2022";
-            SimpleDateFormat parser = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy");
+            SimpleDateFormat parser = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy", Locale.ENGLISH);
             Date knownDate = parser.parse(input);
             Assertions.assertEquals(String.valueOf(knownDate), date);
             int timezoneType = ((UdfInternalDataFile) bootWim.get())

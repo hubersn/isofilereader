@@ -471,8 +471,8 @@ public class IsoFileReader implements AutoCloseable {
     public Optional<GenericInternalIsoFile> getSpecificFileByName(GenericInternalIsoFile[] files, String filename) {
         String normalizedFilename = filename.replace('\\', '/');
         if (!normalizedFilename.startsWith("/")) {
-          normalizedFilename = File.separator + normalizedFilename;
-      }
+            normalizedFilename = "/" + normalizedFilename;
+        }
         if ("/".equals(normalizedFilename)) {
             return Optional.of(files[0]);
         }

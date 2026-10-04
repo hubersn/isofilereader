@@ -23,6 +23,7 @@ import com.palantir.isofilereader.isofilereader.Util;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.TimeZone;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,7 @@ public class UtilTest {
         // 2019/11/21 18:09:17
         byte[] date = {0x77, 0x0B, 0x15, 0x17, 0x09, 0x11, 0x00};
         Optional<Date> time = Util.convert9_1_5DateTime(date);
-        final DateFormat dateFormat = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss");
+        final DateFormat dateFormat = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss", Locale.ENGLISH);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         String stringDate = dateFormat.format(time.get());
         assertEquals("2019/Nov/21 23:09:17", stringDate);

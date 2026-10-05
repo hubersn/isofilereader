@@ -6,9 +6,12 @@ All my changes and additions to this project are in the "hubersn" branch and dua
 
 Changes and additions:
 - main code is now Java 8 compatible
-- test code is now Java 8 compatible (but does not execute properly yet)
+- test code is now Java 8 compatible and runs, but does not implement ISO download for full test automation - see below
     - there is a class Java8Support which reproduces the behaviour of various Java 11-only methods - beware that this is not 100% identical functionality, but aims at "good enough for the isofilereader tests"
-- fixed various problems in tests that assumed English JVM locale for date comparisons
+- fixed various problems in tests that assumed English JVM locale for date comparisons and parsing
+- fixed various problems in tests that assumed Linux/Unix path styles
+    - I believe there is something wrong in the whole File.separator logic, especially with IsoFormatInternalDataFile.getFullFilename, still under investigation
+    - for the time being, the tests should now run on Unix and Windows
 - pom.xml for using Maven 3 for building and packaging
 - architecture to plug in arbitrary ISO9660 image data sources instead of relying on `java.io.File`
     - interface to implement is `com.hubersn.memory.RandomAccessDataIF` with two implementations, `FileRandomAccessData` which wraps a file and delegates to `RandomAccessFile` and `ByteArrayRandomAccessData` which is backed by (you guessed it) a byte array
@@ -16,14 +19,15 @@ Changes and additions:
 - access to inner raw data to enable additional parsing for directory record data
     - this is to parse Acorn CDFS extensions (the one with the ARCHIMEDES descriptions) for RISC OS load/exec address or datestamp/filetype as well as access right attributes and the marker if the first character should really be the "!" instead of the "_" of the entry name
 - made RockRidge extension parsing more robust (basically a big try-catch) because isofilereader failed to read some RISC OS CDs
+    - this is basically a hack - proper parsing of extensions and detecting if there is an extension that we just don't understand and therefore should ignore would be much better
 
-There already seems to be basic Joliet capabilities built in, but I don't yet understand the way it works. I have added a simple-minded "guess" to the code that basically biases the result of `findOptimalSettings` towards the usage of the Extended Volume Descriptor if the existing name length check comes out equal. My aim is to extend the code - if needed - as far as CDROMFS/RISC OS Select CDFS/CDRFS and CDBurn/CDVDBurn/CDBlaze-created image compatibility requires it.
+There already seem to be basic Joliet capabilities built in, but I don't yet understand the way it works. My aim is to extend the code - if needed - as far as CDROMFS/RISC OS Select CDFS/CDRFS and CDBurn/CDVDBurn/CDBlaze-created image compatibility requires it.
 
 A first step is the introduction of `IsoReader` as the new main entry point. This allows for the use of a two-step calling scheme where the caller can specify which format is preferred - plain ISO9660, RockRidge or Joliet. The Format detection is currently incomplete, but is sufficient for CD(VD)Burn-created images. This no longer needs the full scanning of the directory tree to search for RockRidge stuff of the original code. Note that my use-case completely ignores UDF because it is not a thing in RISC OS world.
 
-Test code changed to be Java 8 compatible, but does not run properly yet, so you need to skip tests when building your Java 8 lib jar. Use the original Gradle build mechanism to run the tests.
+Test code changed to be Java 8 compatible, but they only run properly if you download the three big iso files by hand (see isos.props for the URLs, files need to be renamed and put into test_isos dir on project level - see Gradle logic for more info), so you might want to skip tests when building your Java 8 lib jar and use the original Gradle build mechanism to run the tests.
 
-To build the jar for your local maven repo (not executing the tests because...see above), just execute
+To build the jar for your local maven repo (example with not executing the tests because...see above), just execute
 ```
 mvn clean install -DskipTests
 ```

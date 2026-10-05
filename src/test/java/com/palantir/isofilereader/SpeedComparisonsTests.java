@@ -48,8 +48,17 @@ public class SpeedComparisonsTests {
 
     @Test
     void speedComparisons() throws Exception {
+        // TODO somewhere there is a mixup between File.separatorChar and hardcoded "/", still under investigation
+        // TODO therefore we need two variants of pathnames
         String[] filesToGet = {
             "/isolinux/initrd.img", "/isolinux/vmlinuz", "/.treeinfo", "/images/install.img", "/images/efiboot.img"
+        };
+        String[] filesToGetOSNeutral = {
+            File.separatorChar + "isolinux" + File.separatorChar + "initrd.img",
+            File.separatorChar + "isolinux" + File.separatorChar + "vmlinuz",
+            File.separatorChar + ".treeinfo",
+            File.separatorChar + "images" + File.separatorChar + "install.img",
+            File.separatorChar + "images" + File.separatorChar + "efiboot.img"
         };
         String[] md5s = {
             "6a5f978710f89b839c25ac08c157d667", "7c0467fe0bc46055573a10f02bfaa12c",
@@ -95,7 +104,7 @@ public class SpeedComparisonsTests {
 
         System.gc();
 
-        timings = newLibTestMethod2(isoFile, filesToGet, md5s);
+        timings = newLibTestMethod2(isoFile, filesToGetOSNeutral, md5s);
         timingAverage = 0;
         for (long element : timings) {
             timingAverage += element;
@@ -269,7 +278,7 @@ public class SpeedComparisonsTests {
                 List<GenericInternalIsoFile> flatFiles = iso.convertTreeFilesToFlatList(files);
 
                 flatFiles.forEach(n -> {
-                    String filename = n.getFullFileName('/');
+                    String filename = n.getFullFileName(File.separatorChar);
                     if (Arrays.asList(filesToGet).contains(filename)) {
                         try {
                             InputStream isoIn = iso.getFileStream(rawIso, n);
